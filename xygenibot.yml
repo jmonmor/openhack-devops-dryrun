@@ -114,7 +114,7 @@ sast:
 
 # If true (default), add a footer attribution at the end of generated pull request descriptions.
 # Set to false to disable attribution.
-pull-request-attribution-enabled: true
+pull-request-attribution-enabled: false
 
 # If true, self-signed certificates are allowed in the target on-premises SCM system.
 # Use with caution !
