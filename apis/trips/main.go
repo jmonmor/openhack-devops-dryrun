@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
 	sw "github.com/Azure-Samples/openhack-devops-team/apis/trips/tripsgo"
 )
@@ -37,5 +38,14 @@ func main() {
 
 	router := sw.NewRouter()
 
-	sw.Fatal.Println(http.ListenAndServe(fmt.Sprintf("%s%s", ":", *webServerPort), router))
+	server := &http.Server{
+		Addr:              fmt.Sprintf("%s%s", ":", *webServerPort),
+		Handler:           router,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       60 * time.Second,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+
+	sw.Fatal.Println(server.ListenAndServe())
 }
