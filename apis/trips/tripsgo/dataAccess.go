@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func getEnv(key, fallback string) string {
@@ -24,12 +25,20 @@ var (
 	database = flag.String("d", getEnv("SQL_DBNAME", "mydrivingDB"), "db_name")
 )
 
+// sanitizeForLog removes characters that can be used for log forging.
+func sanitizeForLog(input string) string {
+	// Replace CR and LF to avoid log injection / forging
+	replacer := strings.NewReplacer("\r", "\\r", "\n", "\\n")
+	return replacer.Replace(input)
+}
+
 // ExecuteNonQuery - Execute a SQL query that has no records returned (Ex. Delete)
 func ExecuteNonQuery(query string) (string, error) {
 	connString := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;port=%d", *server, *database, *user, *password, *port)
 
 	if *debug {
-		fmt.Printf("connString:%s\n", connString)
+		safeConnString := sanitizeForLog(connString)
+		fmt.Printf("connString:%s\n", safeConnString)
 	}
 
 	conn, err := sql.Open("mssql", connString)
@@ -99,7 +108,8 @@ func FirstOrDefault(query string) (*sql.Row, error) {
 	connString := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;port=%d", *server, *database, *user, *password, *port)
 
 	if *debug {
-		fmt.Printf("connString:%s\n", connString)
+		safeConnString := sanitizeForLog(connString)
+		fmt.Printf("connString:%s\n", safeConnString)
 	}
 
 	conn, err := sql.Open("mssql", connString)
